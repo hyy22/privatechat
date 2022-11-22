@@ -1,0 +1,30 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@koa/cors": "^4.0.0",
+    "@koa/router": "^12.0.0",
+    "formidable": "^2.0.1",
+    "joi": "^17.7.0",
+    "jsonwebtoken": "^8.5.1",
+    "koa": "^2.13.4",
+    "koa-bodyparser": "^4.3.0",
+    "koa-static": "^5.0.0",
+    "mysql2": "^2.3.3",
+    "sequelize": "^6.25.3",
+    "uuid": "^9.0.0",
+    "ws": "^8.10.0"
+  },
+  "scripts": {
+    "serve": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "devDependencies": {
+    "@eslint/create-config": "^0.4.1",
+    "eslint": "^8.26.0",
+    "nodemon": "^2.0.20"
+  }
+}

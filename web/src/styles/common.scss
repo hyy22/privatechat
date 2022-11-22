@@ -1,0 +1,10 @@
+// 多行省略
+@for $i from 1 through 3 {
+  .ellipsis-#{$i} {
+    display: -webkit-box;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    -webkit-line-clamp: $i;
+    -webkit-box-orient: vertical;
+  }
+}
