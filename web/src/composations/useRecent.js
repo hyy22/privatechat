@@ -49,14 +49,14 @@ export default function useRecent() {
       }
     }
   }
-  // 删除消息
-  async function handleRemoveMessage(friendId) {
+  // 更新好友最新一条会话记录
+  async function updateFriendRecentMessage(friendId) {
     const db = await openDB();
     const row = await findLastMessageByUserId(friendId);
     const curRow = await findRowByKey(db, RECENT_STORE, friendId);
+    if (!curRow) return;
     curRow.lastMessage = row;
     await updateRow(db, RECENT_STORE, curRow);
-    findRecentRows();
   }
   // 删除记录
   async function removeRecentMessage(friendId) {
@@ -80,6 +80,6 @@ export default function useRecent() {
     handleNewMessage,
     removeRecentMessage,
     markRecentRead,
-    handleRemoveMessage,
+    updateFriendRecentMessage,
   };
 }
