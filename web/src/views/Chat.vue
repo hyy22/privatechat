@@ -30,7 +30,7 @@ const {
   handleReceiveMessages,
   handleRemoveMessage,
 } = useMessage(targetUserId);
-const { markRecentRead } = useRecent();
+const { markRecentRead, updateFriendRecentMessage } = useRecent();
 const router = useRouter();
 
 /**
@@ -130,6 +130,7 @@ function showActionSheetBar(id) {
 async function handleActionSheetSelect(item) {
   if (item.name === '删除消息') {
     await handleRemoveMessage(actionSheetBar.messageId);
+    await updateFriendRecentMessage(targetUserId);
     actionSheetBar.visible = false;
   }
 }
@@ -253,6 +254,7 @@ onBeforeUnmount(function () {
   }
   .chat-list {
     transform: rotate(-180deg) translateZ(0);
+    min-height: 100%;
   }
   #status-bar {
     text-align: center;

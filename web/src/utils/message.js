@@ -52,7 +52,7 @@ export async function sendMessage(message) {
       data: {
         ...message,
         // 内容加密
-        content: encrypt(message.content, message.toUser.publicKey),
+        content: await encrypt(message.content, message.toUser.publicKey),
       },
     });
     if (result.code === 0) {
@@ -82,21 +82,20 @@ export async function sendMessage(message) {
 export async function receiveMessages(messages = []) {
   const rsaStore = useRsaStore();
   // 解密消息
-  const formatMsgs = messages.map((v) => {
-    v.read = false; // 标记为未读
-    v.chatWithUserId = v.fromUserId; // 聊天用户id，冗余字段，查询用
-    v.status = 'SUCCESS';
-    let content = v.content;
+  let formatMsgs = [];
+  for (let msg of messages) {
+    msg.read = false; // 标记为未读
+    msg.chatWithUserId = msg.fromUserId; // 聊天用户id，冗余字段，查询用
+    msg.status = 'SUCCESS';
     try {
-      content = decrypt(content, rsaStore.privateKey);
+      msg.content = await decrypt(msg.content, rsaStore.privateKey);
     } catch (e) {
-      v.status = 'DECRYPT_FAIL';
+      msg.content =
+        msg.type === 'IMAGE' ? { data: '' } : { text: '**解密失败**' };
+      msg.status = 'DECRYPT_FAIL';
     }
-    return {
-      ...v,
-      content,
-    };
-  });
+    formatMsgs.push(msg);
+  }
   // 入库并上报
   await addMessagesDB(formatMsgs, true);
   // 更新最近记录

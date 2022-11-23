@@ -43,6 +43,7 @@ export const useWsStore = defineStore('ws', {
       this.ws = socket;
     },
     removeWs() {
+      if (!this.ws) return;
       this.ws.close();
       this.ws = null;
     },

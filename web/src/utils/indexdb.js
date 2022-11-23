@@ -292,7 +292,6 @@ export async function findLastRowByIndex(db, storeName, { key, query }) {
     const request = objectStore.index(key).openCursor(query, 'prev');
     request.onsuccess = function () {
       const cursor = request.result;
-      console.log('cursor', cursor);
       if (cursor) {
         resolve(cursor.value);
       } else {

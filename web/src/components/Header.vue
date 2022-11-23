@@ -111,12 +111,10 @@ async function showSystemMessageDialog() {
 }
 // 移除好友申请记录
 async function removeFriendReqRecord(id) {
-  console.log('id', id);
   await removeMessageById(id);
   const targetIndex = systemMessageDialog.messages.findIndex(
     (v) => v.id === id
   );
-  console.log('targetIndex', targetIndex);
   if (targetIndex > -1) {
     systemMessageDialog.messages.splice(targetIndex, 1);
   }

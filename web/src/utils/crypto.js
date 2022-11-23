@@ -1,5 +1,4 @@
 import NodeRSA from 'node-rsa';
-import { isType } from '.';
 import request from './request';
 
 /**
@@ -55,6 +54,22 @@ export async function syncPublicKey(key) {
   }
 }
 
+// 开启webworker线程处理加解密
+function startWorker({ url, type, payload }) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(new URL(url, import.meta.url), {
+      type: 'module',
+    });
+    worker.onmessage = function (event) {
+      resolve(event.data);
+    };
+    worker.onerror = function (e) {
+      reject(e);
+    };
+    worker.postMessage({ type, payload });
+  });
+}
+
 /**
  * 公钥加密
  * @param {Object|String} target 加密内容
@@ -62,11 +77,11 @@ export async function syncPublicKey(key) {
  * @returns
  */
 export function encrypt(target, key) {
-  const rsa = new NodeRSA(key);
-  return rsa.encrypt(
-    isType(target, 'object') ? JSON.stringify(target) : String(target),
-    'base64'
-  );
+  return startWorker({
+    url: './worker.js',
+    type: 'encrypt',
+    payload: { target, key },
+  });
 }
 
 /**
@@ -76,11 +91,9 @@ export function encrypt(target, key) {
  * @returns
  */
 export function decrypt(target, key) {
-  const rsa = new NodeRSA(key);
-  const result = rsa.decrypt(target, 'utf8');
-  try {
-    return JSON.parse(result);
-  } catch (e) {
-    return result;
-  }
+  return startWorker({
+    url: './worker.js',
+    type: 'decrypt',
+    payload: { target, key },
+  });
 }

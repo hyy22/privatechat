@@ -109,7 +109,7 @@ function handleTouchMove() {
       </div>
       <Image
         class="avatar"
-        :src="props.toUser.avatar"
+        :src="props.fromUser.avatar"
         :width="responsive(100)"
         :height="responsive(100)"
         radius="5px" />
@@ -151,7 +151,7 @@ function handleTouchMove() {
     }
     .icon {
       flex: none;
-      margin-right: 20px;
+      margin-left: 20px;
       width: 30px;
       height: 30px;
     }
@@ -185,6 +185,9 @@ function handleTouchMove() {
       }
       .nick {
         text-align: right;
+      }
+      .icon {
+        margin: 0 20px 0 0;
       }
       .content-wrapper {
         justify-content: flex-end;
