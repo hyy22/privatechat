@@ -15,7 +15,6 @@ const form = reactive({
   repeatPassword: '',
   avatar: '',
   signature: '',
-  publicKey: rsaStore.publicKey,
 });
 // 头像预览列表
 const avatarList = ref([]);
@@ -71,6 +70,7 @@ async function onSubmit() {
   const data = deepCopy(form);
   delete data.repeatPassword;
   data.password = md5(form.password);
+  data.publicKey = rsaStore.publicKey;
   const result = await request({
     url: '/register',
     data,

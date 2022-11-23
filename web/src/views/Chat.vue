@@ -254,6 +254,7 @@ onBeforeUnmount(function () {
   }
   .chat-list {
     transform: rotate(-180deg) translateZ(0);
+    min-height: 100%;
   }
   #status-bar {
     text-align: center;
