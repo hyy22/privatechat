@@ -62,9 +62,9 @@ export async function sendMessage(message) {
       message.status = 'SUCCESS';
       message.chatWithUserId = message.toUserId; // 聊天用户id，冗余字段，查询用
       // 入库
-      addMessagesDB([message]);
+      await addMessagesDB([message]);
       // 更新最近记录
-      useRecent().handleNewMessage([message]);
+      await useRecent().handleNewMessage([message]);
       return message;
     }
     throw new Error(result.message);

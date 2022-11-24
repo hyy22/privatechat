@@ -28,7 +28,7 @@ export async function register(ctx) {
   const schema = Joi.object({
     userName: Joi.string().min(2).max(10).required(),
     password: Joi.string().required(),
-    avatar: Joi.string().empty('').pattern(new RegExp('^(http|https){0,1}//')),
+    avatar: Joi.string(),
     signature: Joi.string().empty('').max(200), // ???字符串默认都是必填，如果更改需要添加empty('')
     publicKey: Joi.string().required(),
   });

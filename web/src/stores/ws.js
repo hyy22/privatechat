@@ -11,7 +11,8 @@ export const useWsStore = defineStore('ws', {
     };
   },
   actions: {
-    initWs({ url, onMessage, onConnect, onDisconnect }) {
+    initWs(options) {
+      const { url, onMessage, onConnect, onDisconnect } = options;
       let socket = new WebSocket(url);
       // Connection opened
       socket.addEventListener('open', async () => {
@@ -34,7 +35,7 @@ export const useWsStore = defineStore('ws', {
         if (retryTimes > 0) {
           console.warn('websocket重连中...');
           retryTimes--;
-          setTimeout(this.initWs, 1000);
+          setTimeout(this.initWs(options), 1000);
         } else {
           console.error('重连失败，websocket已断开！');
           onDisconnect && onDisconnect();

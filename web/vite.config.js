@@ -11,6 +11,16 @@ import nodePolyfills from 'vite-plugin-node-stdlib-browser';
 export default defineConfig(({ command }) => {
   if (command === 'serve') {
     return {
+      server: {
+        proxy: {
+          '/api': {
+            target: 'http://localhost:9000',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api/, ''),
+            ws: true,
+          },
+        },
+      },
       plugins: [vue(), nodePolyfills()],
       resolve: {
         alias: {
