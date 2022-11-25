@@ -1,14 +1,13 @@
-import config from '@/config';
-
 /**
  * 打开数据库
+ * @param {String} dbName 数据库名
  * @param {Object} stores 表列表
  * @param {Number} version 版本号
  * @returns {Promise}
  */
-export function initDB(stores = [], version = 1) {
+export function initDB(dbName, stores = [], version = 1) {
   return new Promise((resolve, reject) => {
-    let request = indexedDB.open(config.INDEX_DB_NAME, version);
+    let request = indexedDB.open(dbName, version);
     request.onerror = function (event) {
       reject(new Error(event.target.error.message));
     };

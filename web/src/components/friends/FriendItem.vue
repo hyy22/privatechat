@@ -137,6 +137,7 @@ async function removeFriend(type = 'record') {
     color: #999;
   }
   .time {
+    flex: none;
     color: #666;
     margin-top: 20px;
   }

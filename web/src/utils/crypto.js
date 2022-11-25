@@ -12,7 +12,7 @@ export function importPrivateKey() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.style = 'display: none; width: 0; height: 0; opactity: 0';
-    fileInput.accept = '.txt';
+    fileInput.accept = '.pem';
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {

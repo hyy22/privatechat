@@ -60,7 +60,7 @@ async function handleRsaKeys() {
   const privateFile = new Blob([rsaStore.privateKey], {
     type: 'text/plain',
   });
-  saveFile(privateFile, 'private_key.txt');
+  saveFile(privateFile, `private_key_${form.userName}.pem`);
 }
 
 async function onSubmit() {

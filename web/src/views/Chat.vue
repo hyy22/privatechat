@@ -213,6 +213,7 @@ onBeforeUnmount(function () {
           class="ipt"
           type="textarea"
           autosize
+          rows="1"
           v-model="tempMsg"
           placeholder="请输入"></Field>
         <Button class="btn" type="primary" @click="handleSendText">发送</Button>
