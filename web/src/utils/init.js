@@ -89,6 +89,7 @@ export default async function init() {
         if (msg.type === 'KICKED_OUT') {
           wsStore.removeWs();
           userStore.removeToken();
+          router.push('/login');
           Toast('当前账号已在其他设备上登录，当前设备已下线');
           return;
         }
