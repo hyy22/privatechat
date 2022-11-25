@@ -68,10 +68,19 @@ export default async function(sequelize) {
       }
     });
   }
+  // 删除已收消息
+  function removeReceivedMessages() {
+    Message.destroy({
+      where: {
+        hasReceived: true,
+      }
+    });
+  }
 
   return {
     createMessage,
     findUnReceivedMessages,
     updateReceiveStatus,
+    removeReceivedMessages,
   };
 }
