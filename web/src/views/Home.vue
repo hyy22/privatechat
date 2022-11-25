@@ -4,6 +4,7 @@ import { Search, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import request from '@/utils/request';
 import Header from '@/components/Header.vue';
+import FootBar from '@/components/FootBar.vue';
 import FriendItem from '@/components/friends/FriendItem.vue';
 import useRecent from '@/composations/useRecent';
 import eventBus from '@/utils/eventBus';
@@ -115,22 +116,28 @@ onBeforeUnmount(function () {
 <template>
   <div class="home">
     <Header v-model:hasNew="hasNewFriendAddReq" @add-friend="handleAddFriend" />
-    <Search
-      v-model="searchFilterText"
-      placeholder="请输入关键词"
-      input-align="center" />
-    <FriendItem
-      v-for="item of recentSessionList"
-      :key="item.id"
-      v-bind="item"
-      @remove-friend="handleRemoveFriend"
-      @remove-record="handleRemoveRecordList"
-      @item-click="handleItemClick(item)" />
+    <div class="home-wrapper">
+      <Search
+        v-model="searchFilterText"
+        placeholder="请输入关键词"
+        input-align="center" />
+      <FriendItem
+        v-for="item of recentSessionList"
+        :key="item.id"
+        v-bind="item"
+        @remove-friend="handleRemoveFriend"
+        @remove-record="handleRemoveRecordList"
+        @item-click="handleItemClick(item)" />
+    </div>
+    <FootBar :value="0" />
   </div>
 </template>
 
 <style lang="scss">
 .home {
   background: #f9f9f9;
+}
+.home-wrapper {
+  margin-bottom: 130px;
 }
 </style>

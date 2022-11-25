@@ -11,6 +11,8 @@ import { receiveMessages } from '../utils/message';
 import eventBus from './eventBus';
 
 export default async function init() {
+  // 更新网页标题
+  document.title = config.PROJECT_NAME;
   const userStore = useUserStore();
   const rsaStore = useRsaStore();
   const wsStore = useWsStore();
