@@ -45,7 +45,11 @@ const recentSessionList = computed(() => {
   recentList.value.forEach((v) => {
     const friendRow = friendsRowsMap.get(v.friendId);
     if (friendRow) {
-      recentRowsMap.set(v.friendId, { ...friendRow, ...v });
+      recentRowsMap.set(v.friendId, {
+        ...friendRow,
+        lastMessage: v.lastMessage,
+        unreadCount: v.unreadCount,
+      });
       friendsRowsMap.delete(v.friendId);
     }
   });
@@ -70,7 +74,7 @@ function handleRemoveFriend(id) {
   if (index > -1) {
     friends.value.splice(index, 1);
   }
-  removeRecentMessage(id);
+  handleRemoveRecordList(id);
 }
 // 删除好友聊天记录
 function handleRemoveRecordList(id) {

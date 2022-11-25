@@ -30,11 +30,11 @@ export default async function init() {
   }
   // 检测证书
   async function checkRsaKeys() {
-    const { publicKey } = userStore.userInfo;
+    const userInfo = userStore.userInfo;
     let errorMsg;
     if (!rsaStore.privateKey) {
       errorMsg = '私钥读取失败，请选择导入或重新生成';
-    } else if (rsaStore.publicKey !== publicKey) {
+    } else if (rsaStore.publicKey !== userInfo.publicKey) {
       errorMsg = '公钥不一致会导致解密失败，请选择导入私钥或重新生成';
     }
     if (errorMsg) {
@@ -50,14 +50,14 @@ export default async function init() {
           const { publicKey, privateKey } = await importPrivateKey();
           rsaStore.updateRsaKeys(publicKey, privateKey);
           await syncPublicKey(publicKey);
-          rsaStore.publicKey = publicKey;
+          userStore.setUserInfo({ ...userInfo, publicKey });
         } catch (e) {
           console.error(`rsa import fail: `, e.message);
         }
       } catch (e) {
         rsaStore.updateRsaKeys();
         await syncPublicKey(rsaStore.publicKey);
-        rsaStore.publicKey = publicKey;
+        userStore.setUserInfo({ ...userInfo, publicKey: rsaStore.publicKey });
       }
     }
   }
@@ -130,7 +130,15 @@ export default async function init() {
         },
         {
           storeName: 'recents',
-          keyPath: 'friendId',
+          keyPath: 'id',
+          autoIncrement: true,
+          indexes: [
+            {
+              name: 'friendId',
+              key: 'friendId',
+              options: { unique: true },
+            },
+          ],
         },
       ],
       1
