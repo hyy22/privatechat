@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
+import { accessLogger } from '../logger.js';
 
 export default async (ctx, next) => {
+  const accessTime = Date.now();
   // 解析token并设置userId
   handleToken(ctx);
   try {
@@ -14,7 +16,7 @@ export default async (ctx, next) => {
     };
   } catch (e) {
     // 错误日志
-    // ctx.logger.error(e);
+    ctx.logger.error(e);
     let { message, expose, code } = e || {};
     // 错误处理，只暴露用户级别的错误
     ctx.status = 200;
@@ -26,22 +28,21 @@ export default async (ctx, next) => {
     };
   }
   // 访问日志
-  // process.nextTick(() => {
-  //   const { ip, url, method, header, query, body } = ctx.request;
-  //   const loggerData = {
-  //     ip,
-  //     method,
-  //     url,
-  //     data: method === 'GET' ? query : body,
-  //     access_time: accessTime,
-  //     user_id: ctx.state.userId,
-  //     user_agent: header['user-agent'] || '',
-  //     _sign: header['_sign'] || '',
-  //     code: ctx.body.code,
-  //     cost: Date.now() - accessTime,
-  //   };
-  //   accessLogger.info(JSON.stringify(loggerData));
-  // });
+  process.nextTick(() => {
+    const { ip, url, method, header, query, body } = ctx.request;
+    const loggerData = {
+      ip,
+      method,
+      url,
+      data: method === 'GET' ? query : body,
+      access_time: accessTime,
+      user_id: ctx.token && ctx.token.userId || 0,
+      user_agent: header['user-agent'] || '',
+      code: ctx.body.code,
+      cost: Date.now() - accessTime,
+    };
+    accessLogger.info(JSON.stringify(loggerData));
+  });
 };
 
 /**

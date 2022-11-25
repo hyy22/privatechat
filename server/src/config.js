@@ -28,5 +28,6 @@ export default {
     password: MYSQL_PASSWORD || '123456',
     host: MYSQL_HOST || 'localhost',
     port: MYSQL_PORT || 33060
-  }
+  },
+  logdir: resolve(__dirname, '../logs'),
 };
