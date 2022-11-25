@@ -34,7 +34,7 @@ services:
       - db
     # https://docs.docker.com/compose/startup-order/
     # depends on只会等待服务启动，不会等到db等初始化完成，所以只用depends on后连接数据库会报错
-    command: [ "./wait-for-it.sh", "db:3306", "--", "pm2-runtime", "/app/src/server.js" ]
+    command: [ "./wait-for-it.sh", "db:3306", "-t", "0", "--", "pm2-runtime", "/app/src/server.js" ]
 
   web:
     build:
