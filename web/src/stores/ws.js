@@ -4,6 +4,8 @@ import { defineStore } from 'pinia';
 const MAX_RETRY_TIMES = 10;
 // 剩余重试次数
 let retryTimes = MAX_RETRY_TIMES;
+// 是否自动重连
+let autoReconnect = true;
 export const useWsStore = defineStore('ws', {
   state: () => {
     return {
@@ -16,8 +18,9 @@ export const useWsStore = defineStore('ws', {
       let socket = new WebSocket(url);
       // Connection opened
       socket.addEventListener('open', async () => {
-        // 重置次数
+        // 重置
         retryTimes = MAX_RETRY_TIMES;
+        autoReconnect = true;
         onConnect && onConnect();
       });
       // Listen for messages
@@ -32,12 +35,12 @@ export const useWsStore = defineStore('ws', {
       });
       // reconnect
       socket.addEventListener('close', () => {
-        if (retryTimes > 0) {
+        if (autoReconnect && retryTimes > 0) {
           console.warn('websocket重连中...');
           retryTimes--;
-          setTimeout(this.initWs(options), 1000);
+          setTimeout(this.initWs(options), 3000);
         } else {
-          console.error('重连失败，websocket已断开！');
+          console.error('websocket已断开！');
           onDisconnect && onDisconnect();
         }
       });
@@ -45,6 +48,7 @@ export const useWsStore = defineStore('ws', {
     },
     removeWs() {
       if (!this.ws) return;
+      autoReconnect = false;
       this.ws.close();
       this.ws = null;
     },

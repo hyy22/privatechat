@@ -76,6 +76,13 @@ export default async function init() {
       },
       // 接收到新消息
       onMessage: async (msg) => {
+        // 如果是踢出需要跳转登录页
+        if (msg.type === 'KICKED_OUT') {
+          wsStore.removeWs();
+          userStore.removeToken();
+          Toast('当前账号已在其他设备上登录，当前设备已下线');
+          return;
+        }
         const msgs = await receiveMessages([msg]);
         eventBus.emit('message', msgs);
         console.log('received a new message', msg);
