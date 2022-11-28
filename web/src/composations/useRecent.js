@@ -4,7 +4,7 @@ import { useDbStore } from '@/stores/db';
 import {
   insertRows,
   removeRowByKey,
-  findRowByKey,
+  findRowByIndex,
   findAllRows,
   updateRow,
 } from '@/utils/indexdb';
@@ -33,11 +33,17 @@ export default function useRecent() {
     for (let msg of messages) {
       const isMy = msg.fromUserId === userStore.userInfo.id;
       const friendId = isMy ? msg.toUserId : msg.fromUserId;
-      const curRow = await findRowByKey(db, RECENT_STORE, friendId);
+      const [curRow] = await findRowByIndex(
+        db,
+        RECENT_STORE,
+        'friendId',
+        friendId
+      );
       if (curRow) {
         curRow.lastMessage = msg;
         if (!isMy) curRow.unreadCount += 1;
-        await removeRowByKey(db, RECENT_STORE, friendId);
+        await removeRowByKey(db, RECENT_STORE, curRow.id);
+        delete curRow.id;
         await insertRows(db, RECENT_STORE, [curRow]);
       } else {
         const row = {
@@ -53,7 +59,12 @@ export default function useRecent() {
   async function updateFriendRecentMessage(friendId) {
     const db = await openDB();
     const row = await findLastMessageByUserId(friendId);
-    const curRow = await findRowByKey(db, RECENT_STORE, friendId);
+    const [curRow] = await findRowByIndex(
+      db,
+      RECENT_STORE,
+      'friendId',
+      friendId
+    );
     if (!curRow) return;
     curRow.lastMessage = row;
     await updateRow(db, RECENT_STORE, curRow);
@@ -68,7 +79,7 @@ export default function useRecent() {
   // 清空未读数
   async function markRecentRead(friendId) {
     const db = await openDB();
-    const row = await findRowByKey(db, RECENT_STORE, friendId);
+    const [row] = await findRowByIndex(db, RECENT_STORE, 'friendId', friendId);
     if (!row) return;
     row.unreadCount = 0;
     await updateRow(db, RECENT_STORE, row);

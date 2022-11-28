@@ -29,7 +29,7 @@ wss.on('connection', (ws, request, client) => {
   // 每个用户只保留最新一个socket
   const { userId, uuid } = client;
   const curClient = clientsMap.get(userId);
-  if (clientsMap.get(userId) && curClient.uuid !== uuid) {
+  if (curClient && curClient.uuid !== uuid) {
     sendMessage(curClient, {
       type: 'KICKED_OUT',
       content: '当前账号已在其他设备上登录，当前设备已下线',

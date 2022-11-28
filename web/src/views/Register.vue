@@ -6,6 +6,7 @@ import request from '@/utils/request';
 import md5 from 'md5';
 import { useRouter } from 'vue-router';
 import { useRsaStore } from '@/stores/rsa';
+import config from '@/config';
 
 const router = useRouter();
 const rsaStore = useRsaStore();
@@ -42,7 +43,7 @@ async function handleUploadAfterRead({ file }) {
     data: formData,
     loading: true,
   });
-  const avatarUrl = `//${result.data.files[0]}`;
+  const avatarUrl = `${config.BASE_URL}/${result.data.files[0]}`;
   avatarList.value = [{ url: avatarUrl }];
   form.avatar = avatarUrl;
 }
@@ -59,7 +60,7 @@ async function handleRsaKeys() {
   const privateFile = new Blob([rsaStore.privateKey], {
     type: 'text/plain',
   });
-  saveFile(privateFile, 'private_key.txt');
+  saveFile(privateFile, `private_key_${form.userName}.pem`);
 }
 
 async function onSubmit() {

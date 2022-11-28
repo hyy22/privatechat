@@ -17,7 +17,7 @@ export default async function(ctx) {
       if (err) return reject(err);
       resolve({
         fields,
-        files: Object.values(files).map(v => `${ctx.host}/${v.newFilename}`),
+        files: Object.values(files).map(v => v.newFilename),
       });
     });
   });

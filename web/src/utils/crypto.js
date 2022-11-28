@@ -1,5 +1,6 @@
 import NodeRSA from 'node-rsa';
 import request from './request';
+import CryptoWorker from './worker?worker';
 
 /**
  * 导入私钥
@@ -11,7 +12,7 @@ export function importPrivateKey() {
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.style = 'display: none; width: 0; height: 0; opactity: 0';
-    fileInput.accept = '.txt';
+    fileInput.accept = '.pem';
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -55,11 +56,9 @@ export async function syncPublicKey(key) {
 }
 
 // 开启webworker线程处理加解密
-function startWorker({ url, type, payload }) {
+function startWorker({ type, payload }) {
   return new Promise((resolve, reject) => {
-    const worker = new Worker(new URL(url, import.meta.url), {
-      type: 'module',
-    });
+    const worker = new CryptoWorker();
     worker.onmessage = function (event) {
       resolve(event.data);
     };
@@ -78,7 +77,6 @@ function startWorker({ url, type, payload }) {
  */
 export function encrypt(target, key) {
   return startWorker({
-    url: './worker.js',
     type: 'encrypt',
     payload: { target, key },
   });
@@ -92,7 +90,6 @@ export function encrypt(target, key) {
  */
 export function decrypt(target, key) {
   return startWorker({
-    url: './worker.js',
     type: 'decrypt',
     payload: { target, key },
   });

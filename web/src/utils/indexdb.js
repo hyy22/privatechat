@@ -1,30 +1,34 @@
-import config from '@/config';
-
 /**
  * 打开数据库
+ * @param {String} dbName 数据库名
  * @param {Object} stores 表列表
  * @param {Number} version 版本号
  * @returns {Promise}
  */
-export function initDB(stores = [], version = 1) {
+export function initDB(dbName, stores = [], version = 1) {
   return new Promise((resolve, reject) => {
-    let request = indexedDB.open(config.INDEX_DB_NAME, version);
+    let request = indexedDB.open(dbName, version);
     request.onerror = function (event) {
       reject(new Error(event.target.error.message));
     };
     request.onupgradeneeded = function (event) {
       let db = event.target.result;
-      stores.forEach(({ storeName, keyPath, indexes = [] }) => {
-        // 为该数据库创建一个对象仓库
-        if (!db.objectStoreNames.contains(storeName)) {
-          const objectStore = db.createObjectStore(storeName, { keyPath });
-          if (indexes.length) {
-            indexes.forEach((v) => {
-              objectStore.createIndex(v.name, v.key, v.options);
+      stores.forEach(
+        ({ storeName, keyPath, indexes = [], autoIncrement = false }) => {
+          // 为该数据库创建一个对象仓库
+          if (!db.objectStoreNames.contains(storeName)) {
+            const objectStore = db.createObjectStore(storeName, {
+              keyPath,
+              autoIncrement,
             });
+            if (indexes.length) {
+              indexes.forEach((v) => {
+                objectStore.createIndex(v.name, v.key, v.options);
+              });
+            }
           }
         }
-      });
+      );
     };
     request.onsuccess = function (event) {
       resolve(event.target.result);

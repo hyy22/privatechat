@@ -155,7 +155,7 @@ async function rejectAddFriend(row) {
 </script>
 
 <template>
-  <NavBar :title="config.PROJECT_NAME" fixed>
+  <NavBar class="navbar-wrapper" :title="config.PROJECT_NAME">
     <template #left>
       <Icon
         name="chat-o"
@@ -224,6 +224,11 @@ async function rejectAddFriend(row) {
 </template>
 
 <style lang="scss" scoped>
+.navbar-wrapper {
+  position: sticky;
+  top: 0;
+  left: 0;
+}
 .notice-wrapper {
   padding: 20px;
   max-height: 80vh;

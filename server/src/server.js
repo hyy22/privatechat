@@ -6,6 +6,7 @@ import config from './config.js';
 import errorCode from './errorCode.js';
 import initDB from './models/index.js';
 import * as utils from './utils.js';
+import { logger } from './logger.js';
 
 /**
  * ws鉴权
@@ -52,6 +53,7 @@ function authenticate(request, cb) {
     sendMessageByUserId,
     db,
     config,
+    logger,
     errorCode,
     ...utils,
   });

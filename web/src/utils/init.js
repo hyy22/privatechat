@@ -11,6 +11,8 @@ import { receiveMessages } from '../utils/message';
 import eventBus from './eventBus';
 
 export default async function init() {
+  // 更新网页标题
+  document.title = config.PROJECT_NAME;
   const userStore = useUserStore();
   const rsaStore = useRsaStore();
   const wsStore = useWsStore();
@@ -28,11 +30,18 @@ export default async function init() {
   }
   // 检测证书
   async function checkRsaKeys() {
+    const userInfo = userStore.userInfo;
+    let errorMsg;
     if (!rsaStore.privateKey) {
+      errorMsg = '私钥读取失败，请选择导入或重新生成';
+    } else if (rsaStore.publicKey !== userInfo.publicKey) {
+      errorMsg = '公钥不一致会导致解密失败，请选择导入私钥或重新生成';
+    }
+    if (errorMsg) {
       try {
         await Dialog({
-          title: '秘钥遗失？',
-          message: '秘钥加载失败，请选择导入或者重新生成',
+          title: '秘钥错误？',
+          message: errorMsg,
           showCancelButton: true,
           confirmButtonText: '导入私钥',
           cancelButtonText: '重新生成秘钥',
@@ -41,12 +50,14 @@ export default async function init() {
           const { publicKey, privateKey } = await importPrivateKey();
           rsaStore.updateRsaKeys(publicKey, privateKey);
           await syncPublicKey(publicKey);
+          userStore.setUserInfo({ ...userInfo, publicKey });
         } catch (e) {
           console.error(`rsa import fail: `, e.message);
         }
       } catch (e) {
         rsaStore.updateRsaKeys();
         await syncPublicKey(rsaStore.publicKey);
+        userStore.setUserInfo({ ...userInfo, publicKey: rsaStore.publicKey });
       }
     }
   }
@@ -76,6 +87,14 @@ export default async function init() {
       },
       // 接收到新消息
       onMessage: async (msg) => {
+        // 如果是踢出需要跳转登录页
+        if (msg.type === 'KICKED_OUT') {
+          wsStore.removeWs();
+          userStore.removeToken();
+          router.push('/login');
+          Toast('当前账号已在其他设备上登录，当前设备已下线');
+          return;
+        }
         const msgs = await receiveMessages([msg]);
         eventBus.emit('message', msgs);
         console.log('received a new message', msg);
@@ -88,33 +107,43 @@ export default async function init() {
       },
     });
   }
-
   // 初始化数据库
-  await dbStore.openDB(
-    [
-      {
-        storeName: 'messages',
-        keyPath: 'id',
-        indexes: [
-          {
-            name: 'chatWithUserId',
-            key: 'chatWithUserId',
-            options: { unique: false },
-          },
-          {
-            name: 'type',
-            key: 'type',
-            options: { unique: false },
-          },
-        ],
-      },
-      {
-        storeName: 'recents',
-        keyPath: 'friendId',
-      },
-    ],
-    1
-  );
+  function initIndexedDb(userId) {
+    return dbStore.openDB(
+      `PRIVATE_CHAT_${userId}`,
+      [
+        {
+          storeName: 'messages',
+          keyPath: 'id',
+          indexes: [
+            {
+              name: 'chatWithUserId',
+              key: 'chatWithUserId',
+              options: { unique: false },
+            },
+            {
+              name: 'type',
+              key: 'type',
+              options: { unique: false },
+            },
+          ],
+        },
+        {
+          storeName: 'recents',
+          keyPath: 'id',
+          autoIncrement: true,
+          indexes: [
+            {
+              name: 'friendId',
+              key: 'friendId',
+              options: { unique: true },
+            },
+          ],
+        },
+      ],
+      1
+    );
+  }
 
   // 白名单页面
   const whiteList = ['/login', '/register', '/not_found'];
@@ -124,10 +153,12 @@ export default async function init() {
       next();
     } else {
       if (userStore.token) {
+        // 获取个人信息
+        await getUserInfo();
         // 秘钥检测
         await checkRsaKeys();
-        // 获取个人信息
-        getUserInfo();
+        // 初始化数据库
+        await initIndexedDb(userStore.userInfo.id);
         // 初始化im
         initIM(userStore.token);
         next();
