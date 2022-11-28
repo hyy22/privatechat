@@ -9,10 +9,13 @@ import { importPrivateKey, syncPublicKey } from '../utils/crypto';
 import config from '../config';
 import { receiveMessages } from '../utils/message';
 import eventBus from './eventBus';
+import { initNotify, notify } from './notification';
 
 export default async function init() {
   // 更新网页标题
   document.title = config.PROJECT_NAME;
+  // 初始化通知
+  initNotify();
   const userStore = useUserStore();
   const rsaStore = useRsaStore();
   const wsStore = useWsStore();
@@ -97,6 +100,13 @@ export default async function init() {
         }
         const msgs = await receiveMessages([msg]);
         eventBus.emit('message', msgs);
+        // 发送通知
+        const msgTypeMap = {
+          ADD_FRIEND: '你收到一条好友请求',
+          TEXT: '你收到一条文本消息',
+          IMAGE: '你收到一条图片消息',
+        };
+        notify(msgTypeMap[msg.type], '有新消息');
         console.log('received a new message', msg);
       },
       // ws连接已断开

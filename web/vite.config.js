@@ -6,6 +6,7 @@ import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfil
 import builtins from 'rollup-plugin-node-builtins';
 import rollupNodePolyFill from 'rollup-plugin-node-polyfills';
 import nodePolyfills from 'vite-plugin-node-stdlib-browser';
+import { VitePWA } from 'vite-plugin-pwa';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
@@ -21,7 +22,11 @@ export default defineConfig(({ command }) => {
           },
         },
       },
-      plugins: [vue(), nodePolyfills()],
+      plugins: [
+        vue(),
+        nodePolyfills(),
+        VitePWA({ registerType: 'autoUpdate' }),
+      ],
       resolve: {
         alias: {
           '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -30,7 +35,7 @@ export default defineConfig(({ command }) => {
     };
   }
   return {
-    plugins: [vue()],
+    plugins: [vue(), VitePWA({ registerType: 'autoUpdate' })],
     resolve: {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
