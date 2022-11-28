@@ -60,7 +60,8 @@ function handleToken(ctx) {
         ...ctx.token,
         exp: now + expTime,
       }, secret);
-    } else if (exp > now) {
+    } else if (now > exp) {
+      // token过期
       ctx.token = null;
     }
   } catch (e) {

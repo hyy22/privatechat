@@ -7,7 +7,6 @@ import {
   buildMessage,
 } from '@/utils/message';
 import { imgOptimizate, readImageFile } from '@/utils';
-import eventBus from '@/utils/eventBus.js';
 
 export default function useMessage(friendId) {
   // state
@@ -75,7 +74,6 @@ export default function useMessage(friendId) {
     if (index === -1) return;
     messages.value.splice(index, 1);
     await removeMessageById(msgId);
-    eventBus.emit('remove:message', { userId: friendId, messageId: msgId });
   }
 
   return {
