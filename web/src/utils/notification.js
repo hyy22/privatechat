@@ -13,11 +13,16 @@ export function initNotify() {
 }
 
 function createNotify(body, title, options = {}) {
-  return new Notification(title, {
+  let notify = new Notification(title, {
     body,
-    tag: 'private_chat',
+    // tag: 'private_chat',
     ...options,
   });
+  notify.onclick = () => {
+    window.focus();
+    notify.close();
+  };
+  return notify;
 }
 
 export function notify(body, title, options = {}) {
@@ -25,6 +30,7 @@ export function notify(body, title, options = {}) {
     console.error('unsupport Notification api');
     return;
   }
+  console.log('notification start');
   let notifier;
   if (Notification.permission === 'granted') {
     notifier = createNotify(body, title, options);
