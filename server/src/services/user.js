@@ -62,3 +62,24 @@ export async function syncPublicKey(ctx) {
   });
   ctx.state.data = true;
 }
+
+// 更新信息
+export async function updateUserInfo(ctx) {
+  const schema = Joi.object({
+    userName: Joi.string().min(2).max(10).required(),
+    avatar: Joi.string(),
+    signature: Joi.string().empty('').max(200),
+  });
+  const { error } = schema.validate(ctx.request.body, { allowUnknown: true });
+  if (error) {
+    ctx.throwError(error);
+    return;
+  }
+  const { userName, avatar, signature } = ctx.request.body;
+  await ctx.db.User.updateByUserId(ctx.token.userId, {
+    userName,
+    avatar,
+    signature,
+  });
+  ctx.state.data = true;
+}

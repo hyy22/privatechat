@@ -1,16 +1,81 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { Image, Toast } from 'vant';
+import { ref, onMounted, reactive } from 'vue';
+import { Image, Toast, ActionSheet, Icon, Dialog, Field, Button } from 'vant';
 import config from '../config';
-import { copyText, responsive } from '../utils';
+import { copyText, responsive, imgOptimizate } from '../utils';
+import uploadFile from '../utils/upload';
 import { useUserStore } from '../stores/user';
+import request from '../utils/request';
 
+// 弹窗组件
+const DialogComponent = Dialog.Component;
 const userInfo = ref({});
 
 function handleUidClick(text) {
   copyText(text);
   Toast('复制成功');
 }
+/**
+ * 更改信息
+ */
+// 头像
+const CHANGE_AVATAR = '更换头像';
+const actionSheetBar = reactive({
+  visible: false,
+  actions: [{ name: CHANGE_AVATAR }],
+});
+async function submitUpdateInfo(info) {
+  const result = await request({
+    url: '/update_user_info',
+    data: info,
+    loading: true,
+  });
+  if (result.code !== 0) {
+    return Toast(result.message);
+  }
+  return true;
+}
+async function handleActionSheetSelect({ name }) {
+  if (name === CHANGE_AVATAR) {
+    try {
+      // 上传头像
+      const avatar = await uploadFile({
+        accept: 'image/*',
+        beforeUpload: async (file) => {
+          await imgOptimizate({ img: file, size: 300 });
+          return true;
+        },
+      });
+      // 更新信息
+      const success = await submitUpdateInfo({ ...userInfo.value, avatar });
+      if (success) {
+        userInfo.value.avatar = avatar;
+        actionSheetBar.visible = false;
+      }
+    } catch (e) {
+      Toast(e.message);
+    }
+  }
+}
+// 签名
+const signatureModal = reactive({
+  visible: false,
+  text: '',
+});
+function showSignatureModal() {
+  signatureModal.visible = true;
+  signatureModal.text = userInfo.value.signature;
+}
+async function handleSubmitSignatureModal() {
+  const signature = signatureModal.text.trim();
+  if (!signatureModal) return;
+  const pass = await submitUpdateInfo({ ...userInfo.value, signature });
+  if (pass) {
+    userInfo.value.signature = signature;
+    signatureModal.visible = false;
+  }
+}
+
 onMounted(function () {
   const userStore = useUserStore();
   userInfo.value = userStore.userInfo;
@@ -28,7 +93,8 @@ onMounted(function () {
             :height="responsive(140)"
             radius="5px"
             :src="userInfo.avatar || config.DEFAULT_AVATAR_URL"
-            alt="" />
+            alt=""
+            @click="actionSheetBar.visible = true" />
           <div class="text">
             <div class="nick">
               {{ userInfo.userName }}
@@ -38,11 +104,35 @@ onMounted(function () {
             </div>
           </div>
         </div>
-        <div class="me-info--bottom">
-          {{ userInfo.signature || '暂无个性签名' }}
+        <div class="me-info--bottom" @click="showSignatureModal">
+          <span>{{ userInfo.signature || '暂无个性签名' }}</span>
+          <Icon name="edit" color="var(--primary-color)" />
         </div>
       </div>
     </div>
+    <teleport to="body">
+      <ActionSheet
+        v-model:show="actionSheetBar.visible"
+        :actions="actionSheetBar.actions"
+        cancel-text="取消"
+        @select="handleActionSheetSelect"></ActionSheet>
+      <DialogComponent
+        v-model:show="signatureModal.visible"
+        title="修改签名"
+        :show-confirm-button="false"
+        close-on-click-overlay>
+        <Field
+          v-model.trim="signatureModal.text"
+          type="textarea"
+          :rows="2"
+          autosize
+          maxlength="200"
+          show-word-limit></Field>
+        <Button type="primary" size="large" @click="handleSubmitSignatureModal"
+          >确认</Button
+        >
+      </DialogComponent>
+    </teleport>
   </div>
 </template>
 
@@ -75,10 +165,15 @@ onMounted(function () {
   }
 }
 .me-info--bottom {
+  display: flex;
+  justify-content: space-between;
   margin-top: 30px;
   padding: 20px;
   border-radius: 4px;
   background-color: rgba($color: #000000, $alpha: 0.02);
   color: #999;
+  span {
+    margin-right: 20px;
+  }
 }
 </style>
