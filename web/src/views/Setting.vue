@@ -4,7 +4,6 @@ import { Image, Toast } from 'vant';
 import config from '../config';
 import { copyText, responsive } from '../utils';
 import { useUserStore } from '../stores/user';
-import FootBar from '../components/FootBar.vue';
 
 const userInfo = ref({});
 
@@ -44,7 +43,6 @@ onMounted(function () {
         </div>
       </div>
     </div>
-    <FootBar :value="1"></FootBar>
   </div>
 </template>
 

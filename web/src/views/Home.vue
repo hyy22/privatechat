@@ -1,17 +1,17 @@
 <script setup>
-import { computed, ref, onBeforeMount, onBeforeUnmount } from 'vue';
+import { computed, ref, onBeforeMount, onBeforeUnmount, watch } from 'vue';
 import { Search, Toast } from 'vant';
 import { useRouter } from 'vue-router';
 import request from '@/utils/request';
-import Header from '@/components/Header.vue';
-import FootBar from '@/components/FootBar.vue';
 import FriendItem from '@/components/friends/FriendItem.vue';
 import useRecent from '@/composations/useRecent';
 import eventBus from '@/utils/eventBus';
 import { removeMessageRowsByUserId } from '@/utils/message';
+import { useStatusStore } from '@/stores/status';
 
 const router = useRouter();
 const { recentList, findRecentRows, removeRecentMessage } = useRecent();
+const statusStore = useStatusStore();
 
 /**
  * 好友列表
@@ -36,6 +36,7 @@ queryFriendList();
  */
 // 筛选
 const searchFilterText = ref('');
+// 全量会话列表
 const recentSessionList = computed(() => {
   let recentRowsMap = new Map();
   let friendsRowsMap = friends.value.reduce((prev, cur) => {
@@ -53,17 +54,24 @@ const recentSessionList = computed(() => {
       friendsRowsMap.delete(v.friendId);
     }
   });
-  const allRows = [...recentRowsMap.values(), ...friendsRowsMap.values()];
+  return [...recentRowsMap.values(), ...friendsRowsMap.values()];
+});
+// 筛选后的会话列表
+const filterRecentSessionList = computed(() => {
   return searchFilterText.value
-    ? allRows.filter((v) => v.userName.indexOf(searchFilterText.value) > -1)
-    : allRows;
+    ? recentSessionList.value.filter(
+        (v) => v.userName.indexOf(searchFilterText.value) > -1
+      )
+    : recentSessionList.value;
+});
+// 监听会话变更，更新store
+watch(recentSessionList, (v) => {
+  statusStore.hasUnreadChatMsg = v.some((v) => v.unreadCount > 0);
 });
 
 /**
  * 好友管理
  */
-// 是否有新好友请求
-const hasNewFriendAddReq = ref(false);
 // 添加好友回调
 function handleAddFriend(user) {
   friends.value.push(user);
@@ -98,11 +106,6 @@ onBeforeMount(function () {
   findRecentRows();
   eventBus.on('message', (msgs) => {
     msgs.forEach((v) => {
-      // 有新好友请求，显示小红点
-      if (v.type === 'ADD_FRIEND') {
-        hasNewFriendAddReq.value = true;
-        return;
-      }
       // 有同意好友消息，添加好友到列表
       if (v.type === 'AGREE_FRIEND') {
         handleAddFriend(v.fromUser);
@@ -111,29 +114,30 @@ onBeforeMount(function () {
     // 收到消息更新消息列表
     findRecentRows();
   });
+  // 监听添加好友事件
+  eventBus.on('add-friend', handleAddFriend);
 });
 onBeforeUnmount(function () {
   eventBus.off('message');
+  eventBus.off('add-friend');
 });
 </script>
 
 <template>
   <div class="home">
-    <Header v-model:hasNew="hasNewFriendAddReq" @add-friend="handleAddFriend" />
     <div class="home-wrapper">
       <Search
         v-model="searchFilterText"
         placeholder="请输入关键词"
         input-align="center" />
       <FriendItem
-        v-for="item of recentSessionList"
+        v-for="item of filterRecentSessionList"
         :key="item.id"
         v-bind="item"
         @remove-friend="handleRemoveFriend"
         @remove-record="handleRemoveRecordList"
         @item-click="handleItemClick(item)" />
     </div>
-    <FootBar :value="0" />
   </div>
 </template>
 
