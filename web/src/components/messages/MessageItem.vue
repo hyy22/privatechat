@@ -160,7 +160,8 @@ function handleTouchMove() {
       padding: 20px;
       border-radius: 10px;
       position: relative;
-      white-space: pre;
+      white-space: pre-line;
+      word-break: break-all;
       img {
         max-width: 450px;
       }
