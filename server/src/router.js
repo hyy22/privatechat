@@ -24,6 +24,8 @@ router.post('/get_user_info', auth, user.getUserInfo);
 router.post('/sync_public_key', auth, user.syncPublicKey);
 // 更新用户信息
 router.post('/update_user_info', auth, user.updateUserInfo);
+// 更新密码
+router.post('/reset_password', auth, user.resetPassword);
 
 /**
  * 好友

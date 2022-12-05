@@ -116,7 +116,7 @@ onMounted(function () {
       </div>
       <!-- 九宫格 -->
       <div class="settings">
-        <div class="setting-item">
+        <div class="setting-item" @click="handleJumpUrl('/reset')">
           <div class="setting-item__title">修改密码</div>
           <div class="setting-item__desc">修改登录密码</div>
         </div>

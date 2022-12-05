@@ -30,6 +30,11 @@ const router = createRouter({
       component: () => import('@/views/Channel.vue'),
     },
     {
+      name: 'reset',
+      path: '/reset',
+      component: () => import('@/views/Reset.vue'),
+    },
+    {
       name: 'login',
       path: '/login',
       component: () => import('@/views/Login.vue'),

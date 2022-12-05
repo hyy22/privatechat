@@ -1,6 +1,7 @@
 <script setup>
 import { reactive, onMounted } from 'vue';
 import { Form, Field, Button, Checkbox, CellGroup, Toast } from 'vant';
+import SubLayout from '@/components/SubLayout.vue';
 import request from '@/utils/request';
 
 /**
@@ -76,37 +77,32 @@ onMounted(function () {
 </script>
 
 <template>
-  <div class="channel-page">
-    <div class="title">绑定钉钉机器人</div>
-    <Form @submit="handleSubmit">
-      <CellGroup inset>
-        <Field label="是否开启">
-          <template #input>
-            <Checkbox v-model="form.open" shape="square" />
-          </template>
-        </Field>
-        <Field
-          v-model="form.url"
-          label="webhook"
-          placeholder="钉钉的webhook"
-          :rules="[{ required: true, message: '请填写webhook url' }]" />
-      </CellGroup>
-      <div style="margin: 16px">
-        <Button round block type="primary" native-type="submit"> 提交 </Button>
+  <SubLayout title="绑定钉钉机器人">
+    <div class="channel-page">
+      <Form @submit="handleSubmit">
+        <CellGroup inset>
+          <Field label="是否开启">
+            <template #input>
+              <Checkbox v-model="form.open" shape="square" />
+            </template>
+          </Field>
+          <Field
+            v-model="form.url"
+            label="webhook"
+            placeholder="钉钉的webhook"
+            :rules="[{ required: true, message: '请填写webhook url' }]" />
+        </CellGroup>
+        <div style="margin: 16px">
+          <Button round block type="primary" native-type="submit">
+            提交
+          </Button>
+        </div>
+      </Form>
+      <div style="margin: 16px" v-if="form.id">
+        <Button round block type="danger" @click="submitUnbind">解绑</Button>
       </div>
-    </Form>
-    <div style="margin: 16px" v-if="form.id">
-      <Button round block type="danger" @click="submitUnbind">解绑</Button>
     </div>
-  </div>
+  </SubLayout>
 </template>
 
-<style lang="scss" scoped>
-.channel-page {
-  .title {
-    font-size: 28px;
-    color: #999;
-    padding: 30px;
-  }
-}
-</style>
+<style lang="scss" scoped></style>
