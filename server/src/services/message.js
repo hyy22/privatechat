@@ -82,6 +82,38 @@ export async function sendMessage(ctx) {
   // console.log('messageWithUserInfo', messageWithUserInfo);
   ctx.sendMessageByUserId(toUserId, messageWithUserInfo);
   ctx.state.data = message;
+  // 如果有三方渠道，推送通知
+  process.nextTick(async () => {
+    const channels = await ctx.db.Channel.findChannelsByUserId(toUserId, true);
+    channels.forEach(async v => {
+      let content;
+      try {
+        content = JSON.parse(v.content);
+      } catch (e) {
+        ctx.logger.error(`channel id ${v.id} content parse fail`);
+        return;
+      }
+      switch(v.type) {
+      case 'DINGTALK': {
+        // 钉钉
+        const keyword = 'PRIVCHAT';
+        const response = await ctx.fetch(content.url, {
+          method: 'post',
+          body: JSON.stringify({
+            msgtype: 'text',
+            text: {
+              content: message.type === 'IMAGE' ? `${keyword}-你收到一条图片消息` : `${keyword}-你收到一条消息`,
+            }
+          }),
+          headers: {'Content-Type': 'application/json'}
+        });
+        const data = await response.json();
+        ctx.logger.info(`channel id ${v.id} push result: ${JSON.stringify(data)}`);
+        break;
+      }
+      }
+    });
+  });
 }
 
 // 消息已接收回执

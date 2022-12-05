@@ -4,6 +4,7 @@ import upload from './services/upload.js';
 import * as user from './services/user.js';
 import * as friend from './services/friend.js';
 import * as message from './services/message.js';
+import * as channel from './services/channel.js';
 
 const router = new Router();
 /**
@@ -21,6 +22,10 @@ router.post('/login', user.login);
 router.post('/get_user_info', auth, user.getUserInfo);
 // 同步公钥
 router.post('/sync_public_key', auth, user.syncPublicKey);
+// 更新用户信息
+router.post('/update_user_info', auth, user.updateUserInfo);
+// 更新密码
+router.post('/reset_password', auth, user.resetPassword);
 
 /**
  * 好友
@@ -41,5 +46,12 @@ router.post('/get_message_list', auth, message.getNewMessageList);
 router.post('/send_message', auth, message.sendMessage);
 // 消息接收回执
 router.post('/report_receive_message', auth, message.reportReceiveMessage);
+
+/**
+ * 通知渠道
+ */
+router.post('/get_channel_list', auth, channel.getChannelList);
+router.post('/create_or_update_channel', auth, channel.createOrUpdateChannel);
+router.post('/remove_channel', auth, channel.removeChannelById);
 
 export default router;

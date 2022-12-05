@@ -62,3 +62,45 @@ export async function syncPublicKey(ctx) {
   });
   ctx.state.data = true;
 }
+
+// 更新信息
+export async function updateUserInfo(ctx) {
+  const schema = Joi.object({
+    userName: Joi.string().min(2).max(10).required(),
+    avatar: Joi.string(),
+    signature: Joi.string().empty('').max(200),
+  });
+  const { error } = schema.validate(ctx.request.body, { allowUnknown: true });
+  if (error) {
+    ctx.throwError(error);
+    return;
+  }
+  const { userName, avatar, signature } = ctx.request.body;
+  await ctx.db.User.updateByUserId(ctx.token.userId, {
+    userName,
+    avatar,
+    signature,
+  });
+  ctx.state.data = true;
+}
+
+// 更新密码
+export async function resetPassword(ctx) {
+  const schema = Joi.object({
+    password: Joi.string().required(),
+    newPassword: Joi.string().required(),
+  });
+  const { error } = schema.validate(ctx.request.body, { allowUnknown: true });
+  if (error) {
+    ctx.throwError(error);
+    return;
+  }
+  const { password, newPassword } = ctx.request.body;
+  // 验证密码
+  const [result] = await ctx.db.User.updateByUserId(ctx.token.userId, { password: newPassword }, { password });
+  if (result === 1) {
+    ctx.state.data = 1;
+    return;
+  }
+  ctx.throwError(new Error('密码修改失败，原密码有误'));
+}

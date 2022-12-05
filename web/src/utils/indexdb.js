@@ -54,7 +54,8 @@ export function insertRows(db, storeName, rows = []) {
     };
     const objectStore = transaction.objectStore(storeName);
     rows.forEach((row) => {
-      objectStore.add(row);
+      // put表示存在时修改，不存在时新增
+      objectStore.put(row);
     });
   });
 }

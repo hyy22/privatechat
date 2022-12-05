@@ -38,7 +38,9 @@ export const useWsStore = defineStore('ws', {
         if (autoReconnect && retryTimes > 0) {
           console.warn('websocket重连中...');
           retryTimes--;
-          setTimeout(this.initWs(options), 3000);
+          setTimeout(() => {
+            this.initWs(options);
+          }, 3000);
         } else {
           console.error('websocket已断开！');
           onDisconnect && onDisconnect();

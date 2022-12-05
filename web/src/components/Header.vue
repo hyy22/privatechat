@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue';
+import { reactive, onBeforeMount, onBeforeUnmount } from 'vue';
 import {
   Dialog,
   Field,
@@ -14,6 +14,7 @@ import {
 import request from '../utils/request';
 import config from '../config';
 import { useUserStore } from '../stores/user';
+import { useStatusStore } from '../stores/status';
 import {
   buildMessage,
   sendMessage,
@@ -21,16 +22,9 @@ import {
   removeMessageById,
 } from '../utils/message';
 import { responsive } from '../utils';
+import eventBus from '../utils/eventBus';
 
-// 属性
-const props = defineProps({
-  hasNew: {
-    type: Boolean,
-    default: false,
-  },
-});
-// 事件
-const emit = defineEmits(['add-friend', 'reject-friend', 'update:hasNew']);
+const statusStore = useStatusStore();
 // 弹窗组件
 const DialogComponent = Dialog.Component;
 /**
@@ -107,7 +101,8 @@ async function showSystemMessageDialog() {
   }
   systemMessageDialog.messages = sysMsgs.reverse();
   systemMessageDialog.visible = true;
-  emit('update:hasNew', false);
+  // 变更store
+  statusStore.hasNewSystemNotify = false;
 }
 // 移除好友申请记录
 async function removeFriendReqRecord(id) {
@@ -131,7 +126,7 @@ async function agreeAddFriend(row) {
   });
   try {
     await sendMessage(message);
-    emit('add-friend', { ...row.fromUser });
+    eventBus.emit('add-friend', { ...row.fromUser });
     removeFriendReqRecord(row.id);
   } catch (e) {
     Toast(e.message);
@@ -152,6 +147,20 @@ async function rejectAddFriend(row) {
   }
   Toast(result.message);
 }
+
+/**
+ * 生命周期
+ */
+onBeforeMount(function () {
+  eventBus.on('message', (msgs) => {
+    if (msgs.some((v) => v.type === 'ADD_FRIEND')) {
+      statusStore.hasNewSystemNotify = true;
+    }
+  });
+});
+onBeforeUnmount(function () {
+  eventBus.off('message');
+});
 </script>
 
 <template>
@@ -159,7 +168,7 @@ async function rejectAddFriend(row) {
     <template #left>
       <Icon
         name="chat-o"
-        :dot="props.hasNew"
+        :dot="statusStore.hasNewSystemNotify"
         size="18"
         @click="showSystemMessageDialog" />
     </template>
