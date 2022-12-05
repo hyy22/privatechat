@@ -17,7 +17,7 @@ import useRecent from '../composations/useRecent';
 import eventBus from '../utils/eventBus';
 import MessageItem from '../components/messages/MessageItem.vue';
 import { startObserve } from '../utils/intersectionObserver';
-import { responsive } from '../utils';
+import { responsive, copyText } from '../utils';
 
 const { query } = useRoute();
 // 聊天对象用户id
@@ -120,19 +120,27 @@ function handleImgUpload(f) {
  */
 const actionSheetBar = reactive({
   visible: false,
-  messageId: 0,
-  actions: [{ name: '删除消息' }],
+  message: null,
+  actions: [],
 });
-function showActionSheetBar(id) {
+function showActionSheetBar(message) {
   actionSheetBar.visible = true;
-  actionSheetBar.messageId = id;
+  actionSheetBar.message = message;
+  actionSheetBar.actions =
+    message.type === 'TEXT'
+      ? [{ name: '复制消息' }, { name: '删除消息' }]
+      : [{ name: '删除消息' }];
 }
 async function handleActionSheetSelect(item) {
-  if (item.name === '删除消息') {
-    await handleRemoveMessage(actionSheetBar.messageId);
-    await updateFriendRecentMessage(targetUserId);
-    actionSheetBar.visible = false;
+  const { id, content } = actionSheetBar.message;
+  if (item.name === '复制消息') {
+    copyText(content.text);
   }
+  if (item.name === '删除消息') {
+    await handleRemoveMessage(id);
+    await updateFriendRecentMessage(targetUserId);
+  }
+  actionSheetBar.visible = false;
 }
 
 /**
@@ -192,7 +200,7 @@ onBeforeUnmount(function () {
           v-bind="item"
           v-for="item of messages"
           :key="item.id"
-          @longpress="showActionSheetBar"></MessageItem>
+          @longpress="showActionSheetBar(item)"></MessageItem>
         <!-- 到底 -->
         <div id="bottom-bar"></div>
       </div>
