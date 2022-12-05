@@ -50,7 +50,8 @@ export async function sendMessage(message) {
     const result = await request({
       url: '/send_message',
       data: {
-        ...message,
+        toUserId: message.toUserId,
+        type: message.type,
         // 内容加密
         content: await encrypt(message.content, message.toUser.publicKey),
       },

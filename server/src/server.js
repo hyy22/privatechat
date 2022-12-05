@@ -1,4 +1,5 @@
 import { createServer } from 'http';
+import fetch from 'node-fetch';
 import app from './app.js';
 import wss, { sendMessageByUserId } from './websocket.js';
 import jwt from 'jsonwebtoken';
@@ -55,6 +56,7 @@ function authenticate(request, cb) {
     config,
     logger,
     errorCode,
+    fetch,
     ...utils,
   });
 

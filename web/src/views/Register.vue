@@ -118,6 +118,7 @@ async function onSubmit() {
           <Uploader
             v-model="avatarList"
             accept=".jpg,.jpeg,.png,.gif"
+            :max-count="1"
             :before-read="handleUploadBeforeRead"
             :after-read="handleUploadAfterRead"></Uploader>
         </template>

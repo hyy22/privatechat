@@ -1,4 +1,5 @@
 import { DataTypes, Op } from 'sequelize';
+import { helper } from '../utils.js';
 
 export default async function(sequelize) {
   const User = sequelize.define('User', {
@@ -62,11 +63,11 @@ export default async function(sequelize) {
     });
   }
   // 更新用户信息
-  async function updateByUserId(id, data) {
+  async function updateByUserId(id, data, extraCondition) {
+    let condition = { id };
+    if (helper.isType(extraCondition, 'object')) Object.assign(condition, extraCondition);
     return User.update(data, {
-      where: {
-        id,
-      }
+      where: condition,
     });
   }
   // 查询多个用户
