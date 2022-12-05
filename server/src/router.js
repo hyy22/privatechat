@@ -4,6 +4,7 @@ import upload from './services/upload.js';
 import * as user from './services/user.js';
 import * as friend from './services/friend.js';
 import * as message from './services/message.js';
+import * as channel from './services/channel.js';
 
 const router = new Router();
 /**
@@ -43,5 +44,12 @@ router.post('/get_message_list', auth, message.getNewMessageList);
 router.post('/send_message', auth, message.sendMessage);
 // 消息接收回执
 router.post('/report_receive_message', auth, message.reportReceiveMessage);
+
+/**
+ * 通知渠道
+ */
+router.post('/get_channel_list', auth, channel.getChannelList);
+router.post('/create_or_update_channel', auth, channel.createOrUpdateChannel);
+router.post('/remove_channel', auth, channel.removeChannelById);
 
 export default router;

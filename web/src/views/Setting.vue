@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue';
 import { Image, Toast, ActionSheet, Icon, Dialog, Field, Button } from 'vant';
+import { useRouter } from 'vue-router';
 import config from '../config';
 import { copyText, responsive, imgOptimizate } from '../utils';
 import uploadFile from '../utils/upload';
@@ -10,6 +11,7 @@ import request from '../utils/request';
 // 弹窗组件
 const DialogComponent = Dialog.Component;
 const userInfo = ref({});
+const router = useRouter();
 
 function handleUidClick(text) {
   copyText(text);
@@ -75,6 +77,9 @@ async function handleSubmitSignatureModal() {
     signatureModal.visible = false;
   }
 }
+function handleJumpUrl(url) {
+  router.push(url);
+}
 
 onMounted(function () {
   const userStore = useUserStore();
@@ -107,6 +112,25 @@ onMounted(function () {
         <div class="me-info--bottom" @click="showSignatureModal">
           <span>{{ userInfo.signature || '暂无个性签名' }}</span>
           <Icon name="edit" color="var(--primary-color)" />
+        </div>
+      </div>
+      <!-- 九宫格 -->
+      <div class="settings">
+        <div class="setting-item">
+          <div class="setting-item__title">修改密码</div>
+          <div class="setting-item__desc">修改登录密码</div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-item__title">消息导出</div>
+          <div class="setting-item__desc">导出聊天记录</div>
+        </div>
+        <div class="setting-item">
+          <div class="setting-item__title">消息导入</div>
+          <div class="setting-item__desc">导入聊天记录</div>
+        </div>
+        <div class="setting-item" @click="handleJumpUrl('/channel')">
+          <div class="setting-item__title">钉钉提醒</div>
+          <div class="setting-item__desc">关联钉钉机器人</div>
         </div>
       </div>
     </div>
@@ -174,6 +198,33 @@ onMounted(function () {
   color: #999;
   span {
     margin-right: 20px;
+  }
+}
+.settings {
+  padding: 30px;
+  display: flex;
+  flex-wrap: wrap;
+}
+.setting-item {
+  flex: none;
+  width: 210px;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-sizing: border-box;
+  box-shadow: 0px 0px 8px 0px rgba($color: #000000, $alpha: 0.1);
+  margin: 0 30px 30px 0;
+  .setting-item__title {
+    font-size: 26px;
+  }
+  .setting-item__desc {
+    margin-top: 10px;
+    color: #999;
+  }
+  &:nth-child(3n) {
+    margin-right: 0;
   }
 }
 </style>
