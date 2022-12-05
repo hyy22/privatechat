@@ -77,8 +77,14 @@ async function handleSubmitSignatureModal() {
     signatureModal.visible = false;
   }
 }
+
+// 跳转
 function handleJumpUrl(url) {
   router.push(url);
+}
+// 开发中
+function building() {
+  Toast('功能开发中...');
 }
 
 onMounted(function () {
@@ -120,11 +126,11 @@ onMounted(function () {
           <div class="setting-item__title">修改密码</div>
           <div class="setting-item__desc">修改登录密码</div>
         </div>
-        <div class="setting-item">
+        <div class="setting-item" @click="building">
           <div class="setting-item__title">消息导出</div>
           <div class="setting-item__desc">导出聊天记录</div>
         </div>
-        <div class="setting-item">
+        <div class="setting-item" @click="building">
           <div class="setting-item__title">消息导入</div>
           <div class="setting-item__desc">导入聊天记录</div>
         </div>
