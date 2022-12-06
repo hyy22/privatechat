@@ -40,3 +40,14 @@ docker-compose up -d
 - [x] 消息通知
 - [ ] pwa支持
 - [ ] 聊天数据导入导出
+
+## 开发过程遇到的问题
+
+### docker-compose打包启动后无法连接数据库
+
+因为depends on只会等待服务启动，不会等到db等初始化完成，所以只用depends on后连接数据库会报错，[https://docs.docker.com/compose/startup-order/](https://docs.docker.com/compose/startup-order/)，需要用到docker官方推荐的脚本[https://github.com/vishnubob/wait-for-it](https://github.com/vishnubob/wait-for-it)
+
+### vite打包报错Buffer is not defined
+
+使用了`node-rsa`包处理加解密，包用到了node相关环境。因为vite缺少node相关环境，需要安装三方兼容包`@esbuild-plugins/node-globals-polyfill`、`@esbuild-plugins/node-modules-polyfill`、..通过插件的方式兼容node环境
+
