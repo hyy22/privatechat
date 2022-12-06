@@ -25,8 +25,8 @@ function handleUploadBeforeRead(file) {
     Toast('请上传 jpg 格式图片');
     return false;
   }
-  if (file.size > 500 * 1024) {
-    Toast('图片不能大于500kb');
+  if (file.size > 10 * 1024 * 1024) {
+    Toast('图片不能大于10mb');
     return false;
   }
   return true;

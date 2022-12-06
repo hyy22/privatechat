@@ -41,6 +41,15 @@ docker-compose up -d
 - [ ] pwa支持
 - [ ] 聊天数据导入导出
 
+## 截图
+
+![注册](./screenshot/register.png)
+![登录](./screenshot/login.png)
+![会话](./screenshot/session.png)
+![聊天](./screenshot/chat.png)
+![设置](./screenshot/setting.png)
+![好友](./screenshot/friend.png)
+
 ## 开发过程遇到的问题
 
 ### docker-compose打包启动后无法连接数据库
