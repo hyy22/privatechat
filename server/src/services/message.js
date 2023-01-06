@@ -96,13 +96,17 @@ export async function sendMessage(ctx) {
       switch(v.type) {
       case 'DINGTALK': {
         // 钉钉
-        const keyword = 'PRIVCHAT';
+        const messageTypeMap = {
+          'TEXT': '你收到一条消息',
+          'IMAGE': '你收到一条图片消息',
+          'ADD_FRIEND': '你收到一个好友请求',
+        };
         const response = await ctx.fetch(content.url, {
           method: 'post',
           body: JSON.stringify({
             msgtype: 'text',
             text: {
-              content: message.type === 'IMAGE' ? `${keyword}-你收到一条图片消息` : `${keyword}-你收到一条消息`,
+              content: `${content.keyword}-${messageTypeMap[message.type]}`,
             }
           }),
           headers: {'Content-Type': 'application/json'}
