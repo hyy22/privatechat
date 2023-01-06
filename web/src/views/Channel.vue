@@ -11,6 +11,7 @@ const form = reactive({
   id: 0,
   open: false,
   url: '',
+  keyword: '',
 });
 // 获取钉钉绑定信息
 async function getDingTalkChannelInfo() {
@@ -24,10 +25,12 @@ async function getDingTalkChannelInfo() {
       form.id = channelInfo.id;
       form.open = channelInfo.open;
       try {
-        const { url } = JSON.parse(channelInfo.content);
+        const { url, keyword } = JSON.parse(channelInfo.content);
         form.url = url;
+        form.keyword = keyword;
       } catch (e) {
         form.url = '';
+        form.keyword = '';
       }
     }
     return;
@@ -42,7 +45,7 @@ async function handleSubmit() {
       id: form.id,
       open: form.open,
       type: 'DINGTALK',
-      content: JSON.stringify({ url: form.url }),
+      content: JSON.stringify({ url: form.url, keyword: form.keyword }),
     },
   });
   if (result.code === 0) {
@@ -64,6 +67,7 @@ async function submitUnbind() {
     form.id = 0;
     form.open = false;
     form.url = '';
+    form.keyword = '';
     Toast('解绑成功');
     return;
   }
@@ -87,10 +91,15 @@ onMounted(function () {
             </template>
           </Field>
           <Field
-            v-model="form.url"
+            v-model.trim="form.url"
             label="webhook"
             placeholder="钉钉的webhook"
             :rules="[{ required: true, message: '请填写webhook url' }]" />
+          <Field
+            v-model.trim="form.keyword"
+            label="关键词"
+            placeholder="钉钉的关键词"
+            :rules="[{ required: true, message: '请填写钉钉的关键词' }]" />
         </CellGroup>
         <div style="margin: 16px">
           <Button round block type="primary" native-type="submit">

@@ -2,7 +2,13 @@ import Joi from 'joi';
 
 // 获取渠道列表
 export async function getChannelList(ctx) {
-  ctx.state.data = await ctx.db.Channel.findChannelsByUserId(ctx.token.userId);
+  const channels = await ctx.db.Channel.findChannelsByUserId(ctx.token.userId);
+  ctx.state.data = channels.map(v => {
+    return {
+      ...v,
+      open: v.open === 1,
+    };
+  });
 }
 
 // 新增或修改渠道
