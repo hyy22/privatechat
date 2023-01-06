@@ -3,10 +3,18 @@ import { ref, onMounted, reactive } from 'vue';
 import { Image, Toast, ActionSheet, Icon, Dialog, Field, Button } from 'vant';
 import { useRouter } from 'vue-router';
 import config from '../config';
-import { copyText, responsive, imgOptimizate } from '../utils';
-import uploadFile from '../utils/upload';
+import {
+  copyText,
+  responsive,
+  imgOptimizate,
+  saveFile,
+  readFileData,
+} from '../utils';
+import uploadFile, { buildFileInput } from '../utils/upload';
 import { useUserStore } from '../stores/user';
+import { useDbStore } from '../stores/db';
 import request from '../utils/request';
+import { exportDBDataAsJSON, importDBData } from '../utils/indexdb';
 
 // 弹窗组件
 const DialogComponent = Dialog.Component;
@@ -82,7 +90,47 @@ async function handleSubmitSignatureModal() {
 function handleJumpUrl(url) {
   router.push(url);
 }
+// 导出数据
+async function exportDB() {
+  Toast.loading({
+    duration: 0,
+    forbidClick: true,
+    message: '导出中...请勿刷新页面',
+  });
+  const db = useDbStore().db;
+  const result = await exportDBDataAsJSON(db);
+  const blob = new Blob([JSON.stringify(result)], { type: 'application/json' });
+  Toast.clear();
+  saveFile(blob, `chat_backup_${Date.now()}.json`);
+}
+// 导入数据
+async function importDB() {
+  buildFileInput({
+    accept: 'application/json',
+    onChange: async function (e) {
+      const [file] = [...e.target.files];
+      if (!file) return;
+      Toast.loading({
+        duration: 0,
+        forbidClick: true,
+        message: '数据导入中...请勿刷新页面',
+      });
+      const data = await readFileData(file, 'readAsText');
+      const db = useDbStore().db;
+      try {
+        const jsonObject = JSON.parse(data);
+        await importDBData(db, jsonObject);
+        Toast.clear();
+        Toast('导入成功！');
+      } catch (e) {
+        Toast.clear();
+        Toast('数据导入失败！');
+      }
+    },
+  });
+}
 // 开发中
+// eslint-disable-next-line no-unused-vars
 function building() {
   Toast('功能开发中...');
 }
@@ -126,11 +174,11 @@ onMounted(function () {
           <div class="setting-item__title">修改密码</div>
           <div class="setting-item__desc">修改登录密码</div>
         </div>
-        <div class="setting-item" @click="building">
+        <div class="setting-item" @click="exportDB">
           <div class="setting-item__title">消息导出</div>
           <div class="setting-item__desc">导出聊天记录</div>
         </div>
-        <div class="setting-item" @click="building">
+        <div class="setting-item" @click="importDB">
           <div class="setting-item__title">消息导入</div>
           <div class="setting-item__desc">导入聊天记录</div>
         </div>

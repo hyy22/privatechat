@@ -6,7 +6,7 @@ import {
   removeMessageById,
   buildMessage,
 } from '@/utils/message';
-import { imgOptimizate, readImageFile } from '@/utils';
+import { imgOptimizate, readFileData } from '@/utils';
 
 export default function useMessage(friendId) {
   // state
@@ -46,9 +46,7 @@ export default function useMessage(friendId) {
       };
     } else if (type === 'IMAGE') {
       content = {
-        data: await readImageFile(
-          await imgOptimizate({ img: data, size: 750 })
-        ),
+        data: await readFileData(await imgOptimizate({ img: data, size: 750 })),
       };
     }
     const message = buildMessage({

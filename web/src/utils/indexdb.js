@@ -316,3 +316,31 @@ export async function findLastRowByIndex(db, storeName, { key, query }) {
 export function closeDB(db) {
   db.close();
 }
+
+/**
+ * 导出数据库数据成json格式
+ * @param {IDBDatabase} db 数据库引用
+ * @returns
+ */
+export async function exportDBDataAsJSON(db) {
+  const storeNames = Array.from(db.objectStoreNames);
+  const result = {};
+  for (let store of storeNames) {
+    result[store] = await findAllRows(db, store);
+  }
+  return result;
+}
+
+/**
+ * 导入json文件到数据库
+ * @param {IDBDatabase} db 数据库引用
+ * @param {Object} json 数据
+ */
+export async function importDBData(db, json) {
+  const storeNames = Array.from(db.objectStoreNames);
+  for (let store of storeNames) {
+    if (json[store] && json[store].length) {
+      await insertRows(db, store, json[store]);
+    }
+  }
+}

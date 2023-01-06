@@ -95,18 +95,29 @@ export function imgOptimizate({ img, size, quality = 90 }) {
 }
 
 /**
- * 读取图片内容
- * @param {File} img 图片对象
+ * 读取文件内容
+ * @param {File} file 文件对象
+ * @param {String} readAs 读取方法
  * @returns
  */
-export function readImageFile(img) {
+export function readFileData(file, readAs = 'readAsDataURL') {
   return new Promise((resolve, reject) => {
+    if (
+      ![
+        'readAsDataURL',
+        'readAsArrayBuffer',
+        'readAsBinaryString',
+        'readAsText',
+      ].includes(readAs)
+    ) {
+      return reject(new Error('readAs method is invalid!'));
+    }
     const fileReader = new FileReader();
     fileReader.addEventListener('load', (e) => {
       resolve(e.target.result);
     });
     fileReader.addEventListener('error', (e) => reject(e));
-    fileReader.readAsDataURL(img);
+    fileReader[readAs](file);
   });
 }
 
